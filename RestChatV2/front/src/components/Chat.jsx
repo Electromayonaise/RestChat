@@ -9,7 +9,7 @@ const ChatBubble = styled(Paper)(({ theme, sender }) => ({
   padding: '12px', // Aumentar el padding
   borderRadius: '10px',
   maxWidth: '70%',
-  backgroundColor: sender ? theme.palette.primary.light : theme.palette.grey[700], // Cambiar a un gris más oscuro
+  backgroundColor: sender ? theme.palette.primary.light : theme.palette.grey[400], // Cambiar a un gris más oscuro
   alignSelf: sender ? 'flex-end' : 'flex-start',
 }));
 
