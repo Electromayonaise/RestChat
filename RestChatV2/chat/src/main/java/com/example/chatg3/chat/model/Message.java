@@ -1,7 +1,6 @@
 package com.example.chatg3.chat.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonBackReference; // Importar para manejar la referencia
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,5 +32,17 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "chat_id")
+    @JsonBackReference // Indica que esta es la referencia que no se serializa
     private Chat chat;
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", sender='" + sender + '\'' +
+                ", type='" + type + '\'' +
+                ", content='" + content + '\'' +
+                ", isRead=" + isRead +
+                '}';
+    }
 }

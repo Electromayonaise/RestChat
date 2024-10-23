@@ -13,7 +13,7 @@ const useChat = () => {
     const axiosInstance = axios.create({
         baseURL: 'http://localhost:8081',
     });
-    
+
     useEffect(() => {
         if (recipient) {
             const fetchChatId = async () => {
@@ -21,7 +21,6 @@ const useChat = () => {
                     const response = await axiosInstance.get(`/chat/id?sender=${name}&recipient=${recipient}`);
                     setChatId(response.data);
                     fetchMessages(response.data);
-                    console.log('Chat ID:', response.data);
                 } catch (error) {
                     console.error('Error fetching chat ID:', error);
                 }
@@ -33,7 +32,6 @@ const useChat = () => {
     const fetchMessages = async (chatId) => {
         try {
             const response = await axiosInstance.get(`/chat/messages/${chatId}`);
-            console.log('Mensajes obtenidos:', response.data);
             setMessages(response.data);
         } catch (error) {
             console.error('Error al obtener mensajes:', error);
@@ -42,17 +40,16 @@ const useChat = () => {
 
     useEffect(() => {
         if (recipient) {
-            stompService.subscribe(`/messageTo`, (msg) => {
-                const message = JSON.parse(msg.body);
-                console.log('Mensaje recibido:', message);
-                setMessages((prevMessages) => [...prevMessages, message]); // Asegúrate de agregar el mensaje correctamente
-            });
-        }
-        return () => {
-            if (recipient) {
+            const subscriptionCallback = (message) => {
+                setMessages((prevMessages) => [...prevMessages, message]);
+            };
+
+            stompService.subscribe(`/messageTo`, subscriptionCallback);
+
+            return () => {
                 stompService.unsubscribe(`/messageTo`);
-            }
-        };
+            };
+        }
     }, [recipient]);
 
     const sendMessage = () => {
@@ -68,12 +65,12 @@ const useChat = () => {
                     to: recipient,
                 },
             };
-            stompService.publish('/app/send',msg); // Asegúrate de serializar el mensaje
+            stompService.publish('/app/send', msg);
             setMessage('');
         } else {
             console.warn('Completa todos los campos antes de enviar el mensaje');
         }
-    };    
+    };
 
     const handleNameSubmit = () => {
         if (name) {

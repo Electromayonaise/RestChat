@@ -3,6 +3,7 @@ package com.example.chatg3.chat.model;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference; // Importar para manejar la referencia
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -35,6 +36,16 @@ public class Chat implements Serializable{
     private String to;
 
     @OneToMany(mappedBy = "chat", fetch = FetchType.EAGER)
+    @JsonManagedReference // Indica que esta es la referencia que se serializa
     private List<Message> messages;
 
+    @Override
+    public String toString() {
+        return "Chat{" +
+                "id=" + id +
+                ", sender='" + sender + '\'' +
+                ", to='" + to + '\'' +
+                ", messagesCount=" + (messages != null ? messages.size() : 0) +
+                '}';
+    }
 }
