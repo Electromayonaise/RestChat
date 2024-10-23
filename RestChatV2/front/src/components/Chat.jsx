@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
+// src/components/Chat.js
+
+import React, { useState } from 'react';
 import { Paper, Typography, Box, TextField, Button } from '@mui/material';
 import { styled } from '@mui/system';
+import useChat from '../hooks/useChat'; // Importar el hook personalizado
 
 // Estilo para las burbujas de chat
 const ChatBubble = styled(Paper)(({ theme, sender }) => ({
@@ -15,66 +16,12 @@ const ChatBubble = styled(Paper)(({ theme, sender }) => ({
 }));
 
 const Chat = ({ sender, receiver }) => {
-  const [messages, setMessages] = useState([]);
-  const [client, setClient] = useState(null);
   const [input, setInput] = useState('');
+  const { messages, sendMessage } = useChat(sender, receiver); // Usar el hook personalizado
 
-  useEffect(() => {
-    const socket = new SockJS('http://localhost:8081/ws-connect');
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
-      onConnect: () => {
-        // Suscribirse al canal de mensajes del receptor
-        stompClient.subscribe(`/messageTo/${receiver}`, (message) => {
-          const msg = JSON.parse(message.body);
-          // Solo agregar el mensaje si no es del mismo remitente
-          if (msg.sender !== sender) {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              msg,
-            ]);
-          }
-        });
-  
-        // Suscribirse al canal de mensajes del remitente para recibir respuestas
-        stompClient.subscribe(`/messageTo/${sender}`, (message) => {
-          const msg = JSON.parse(message.body);
-          // Solo agregar el mensaje si no es del mismo remitente
-          if (msg.sender !== sender) {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              msg,
-            ]);
-          }
-        });
-      },
-      onStompError: (frame) => {
-        console.error('Broker reported error: ' + frame.headers['message']);
-        console.error('Additional details: ' + frame.body);
-      },
-    });
-  
-    stompClient.activate();
-    setClient(stompClient);
-  
-    return () => {
-      stompClient.deactivate();
-    };
-  }, [receiver, sender]);
-  
-
-  const sendMessage = () => {
-    if (client && input.trim() !== '') {
-      const msg = { sender, content: input, type: 'CHAT' };
-      // Publicar el mensaje al servidor
-      client.publish({
-        destination: `/app/messageTo/${receiver}`,
-        body: JSON.stringify(msg),
-      });
-      // Solo agregar el mensaje enviado a la lista de mensajes
-      setMessages((prevMessages) => [...prevMessages, msg]);
-      setInput('');
-    }
+  const handleSendMessage = () => {
+    sendMessage(input);
+    setInput('');
   };
 
   return (
@@ -99,7 +46,7 @@ const Chat = ({ sender, receiver }) => {
           sx={{ flexGrow: 1 }}
           placeholder="Escribe un mensaje..."
         />
-        <Button variant="contained" onClick={sendMessage} sx={{ marginLeft: 1 }}>
+        <Button variant="contained" onClick={handleSendMessage} sx={{ marginLeft: 1 }}>
           Enviar
         </Button>
       </Box>
