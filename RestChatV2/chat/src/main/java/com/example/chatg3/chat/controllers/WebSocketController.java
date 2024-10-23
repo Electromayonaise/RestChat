@@ -19,6 +19,7 @@ public class WebSocketController {
     @MessageMapping("/messageTo/{user}")
     public void handleMessage(@DestinationVariable("user") String user, @Payload Message message) {
         System.out.println("Message to: " + user);
+        System.out.println(message);
         chatService.sendMessage(message, user);
     }
 }

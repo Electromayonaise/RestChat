@@ -1,3 +1,4 @@
+import { makeStyles } from '@mui/styles'; // Asegúrate de tener esta importación
 import React from 'react';
 
 const ChatHistory = ({ sender, receiver }) => {

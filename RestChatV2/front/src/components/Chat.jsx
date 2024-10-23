@@ -27,19 +27,25 @@ const Chat = ({ sender, receiver }) => {
         // Suscribirse al canal de mensajes del receptor
         stompClient.subscribe(`/messageTo/${receiver}`, (message) => {
           const msg = JSON.parse(message.body);
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            msg,
-          ]);
+          // Solo agregar el mensaje si no es del mismo remitente
+          if (msg.sender !== sender) {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              msg,
+            ]);
+          }
         });
-
+  
         // Suscribirse al canal de mensajes del remitente para recibir respuestas
         stompClient.subscribe(`/messageTo/${sender}`, (message) => {
           const msg = JSON.parse(message.body);
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            msg,
-          ]);
+          // Solo agregar el mensaje si no es del mismo remitente
+          if (msg.sender !== sender) {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              msg,
+            ]);
+          }
         });
       },
       onStompError: (frame) => {
@@ -47,14 +53,15 @@ const Chat = ({ sender, receiver }) => {
         console.error('Additional details: ' + frame.body);
       },
     });
-
+  
     stompClient.activate();
     setClient(stompClient);
-
+  
     return () => {
       stompClient.deactivate();
     };
   }, [receiver, sender]);
+  
 
   const sendMessage = () => {
     if (client && input.trim() !== '') {
