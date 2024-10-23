@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { TextField, Button } from '@mui/material';
 import MessageList from './MessageList';
 import useChat from '../hooks/useChat';
@@ -71,7 +71,7 @@ const Chat = () => {
             )}
         </div>
     );
-    
 };
 
 export default Chat;
+

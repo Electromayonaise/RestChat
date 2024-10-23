@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,6 +34,7 @@ public class Chat implements Serializable{
 
     private String to;
 
-    @OneToMany(mappedBy = "chat")
+    @OneToMany(mappedBy = "chat", fetch = FetchType.EAGER)
     private List<Message> messages;
+
 }

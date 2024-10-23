@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import stompService from '../utils/stompService';
+import axios from 'axios';
 
 const useChat = () => {
     const [name, setName] = useState('');
@@ -7,36 +8,51 @@ const useChat = () => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const [isNameSet, setIsNameSet] = useState(false);
+    const [chatId, setChatId] = useState(null);
 
+    const axiosInstance = axios.create({
+        baseURL: 'http://localhost:8081',
+    });
+    
     useEffect(() => {
-        const storedMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
-        setMessages(storedMessages);
+        if (recipient) {
+            const fetchChatId = async () => {
+                try {
+                    const response = await axiosInstance.get(`/chat/id?sender=${name}&recipient=${recipient}`);
+                    setChatId(response.data);
+                    fetchMessages(response.data);
+                    console.log('Chat ID:', response.data);
+                } catch (error) {
+                    console.error('Error fetching chat ID:', error);
+                }
+            };
+            fetchChatId();
+        }
+    }, [recipient, name]);
 
-        const handleStorageChange = (event) => {
-            if (event.key === 'chatMessages') {
-                const newMessages = JSON.parse(event.newValue);
-                setMessages(newMessages);
-            }
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
+    const fetchMessages = async (chatId) => {
+        try {
+            const response = await axiosInstance.get(`/chat/messages/${chatId}`);
+            console.log('Mensajes obtenidos:', response.data);
+            setMessages(response.data);
+        } catch (error) {
+            console.error('Error al obtener mensajes:', error);
+        }
+    };
 
     useEffect(() => {
         if (recipient) {
-            stompService.subscribe(`/messageTo/${recipient}`, (msg) => {
-                // Guardamos el mensaje en localStorage
-                console.log('Mensaje recibido:', msg);
-                console.log('Recipient:', recipient);
-                setMessages((prevMessages) => [...prevMessages, msg]);
-                const currentMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
-                localStorage.setItem('chatMessages', JSON.stringify([...currentMessages, msg]));
+            stompService.subscribe(`/messageTo`, (msg) => {
+                const message = JSON.parse(msg.body);
+                console.log('Mensaje recibido:', message);
+                setMessages((prevMessages) => [...prevMessages, message]); // Asegúrate de agregar el mensaje correctamente
             });
         }
+        return () => {
+            if (recipient) {
+                stompService.unsubscribe(`/messageTo`);
+            }
+        };
     }, [recipient]);
 
     const sendMessage = () => {
@@ -47,22 +63,17 @@ const useChat = () => {
                 content: message,
                 isRead: false,
                 chat: {
+                    id: chatId,
                     sender: name,
                     to: recipient,
                 },
             };
-            // Asegúrate de que el endpoint sea el correcto
-            stompService.publish(`/app/chat`, msg); // Publicar el mensaje
-            setMessages((prevMessages) => [...prevMessages, msg]); // Añadir el mensaje a la lista local
+            stompService.publish('/app/send',msg); // Asegúrate de serializar el mensaje
             setMessage('');
-            // Actualiza localStorage
-            const currentMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
-            localStorage.setItem('chatMessages', JSON.stringify([...currentMessages, msg]));
         } else {
             console.warn('Completa todos los campos antes de enviar el mensaje');
         }
-    };
-    
+    };    
 
     const handleNameSubmit = () => {
         if (name) {
@@ -82,7 +93,8 @@ const useChat = () => {
         messages,
         sendMessage,
         isNameSet,
-        handleNameSubmit
+        handleNameSubmit,
+        chatId,
     };
 };
 

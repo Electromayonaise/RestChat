@@ -3,7 +3,8 @@ package com.example.chatg3.chat.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
+import java.util.ArrayList;
+import java.util.List;
 import com.example.chatg3.chat.model.Chat;
 import com.example.chatg3.chat.model.Message;
 import com.example.chatg3.chat.repositories.ChatRepository;
@@ -64,4 +65,10 @@ public class ChatService {
             return chat;
         }
     }
+
+    public List<Message> getMessages(Integer chatId) {
+        Chat chat = chatRepository.findById(chatId).orElse(null);
+        return chat != null ? chat.getMessages() : new ArrayList<>();
+    }
+    
 }
