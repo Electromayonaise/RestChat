@@ -3,8 +3,7 @@ package com.example.chatg3.chat.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
+
 import com.example.chatg3.chat.model.Chat;
 import com.example.chatg3.chat.model.Message;
 import com.example.chatg3.chat.repositories.ChatRepository;
@@ -26,34 +25,39 @@ public class ChatService {
             message.getSender(), 
             to
         );
-    
+        if (chat==null){
+            chat = chatRepository.findBySenderAndTo(
+                to,
+                message.getSender()
+            );
+        }
         if(chat == null) {
             chat = Chat.builder()
                 .sender(message.getSender())
                 .to(to)
                 .build();
             chatRepository.save(chat);
-            System.out.println("Nuevo chat creado: " + chat);
         }
-    
         message.setChat(chat);
         messageRepository.save(message);
-        
-        // Imprime el mensaje que se guarda
-        System.out.println("Mensaje guardado: " + message.getContent());
-        
-        // Notifica al usuario
-        System.out.println("Enviando mensaje a: " + to);
+        // notify user
+        System.out.println("Sending message to: " + to);
         simpMessagingTemplate.convertAndSend(
             "/messageTo/" + to, 
             message
         );
     }
-    
 
     public Chat getChat(String sender, String to) {
         Chat chat = chatRepository.findBySenderAndTo(sender, to);
+        if (chat==null){
+            chat = chatRepository.findBySenderAndTo(to, sender);
+        }
+        
         if(chat != null) {
+            System.out.println("Chat found");
+            System.out.println("Sender"+sender);
+            System.out.println("To"+to);
             return chat;
         } else {
           chat = Chat.builder()
@@ -65,10 +69,4 @@ public class ChatService {
             return chat;
         }
     }
-
-    public List<Message> getMessages(Integer chatId) {
-        Chat chat = chatRepository.findById(chatId).orElse(null);
-        return chat != null ? chat.getMessages() : new ArrayList<>();
-    }
-    
 }
