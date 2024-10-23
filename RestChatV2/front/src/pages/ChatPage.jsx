@@ -17,8 +17,8 @@ const ChatPage = () => {
     <Container maxWidth="sm" sx={{ textAlign: 'center', marginTop: 4 }}>
       {!startChat ? (
         <>
-          <Typography variant="h4" gutterBottom>
-            Bienvenido a la Aplicación de Chat
+          <Typography variant="h4" gutterBottom sx={{ fontSize: '2rem' }}> {/* Aumentar tamaño de fuente */}
+            Bienvenido a Chat Pro
           </Typography>
           <TextField
             label="Tu Nombre"
@@ -27,6 +27,7 @@ const ChatPage = () => {
             margin="normal"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            sx={{ '& .MuiInputBase-input': { fontSize: '1.2rem' } }} // Aumentar tamaño de texto
           />
           <TextField
             label="Usuario con el que chatear"
@@ -35,8 +36,9 @@ const ChatPage = () => {
             margin="normal"
             value={receiver}
             onChange={(e) => setReceiver(e.target.value)}
+            sx={{ '& .MuiInputBase-input': { fontSize: '1.2rem' } }} // Aumentar tamaño de texto
           />
-          <Button variant="contained" onClick={handleStartChat}>
+          <Button variant="contained" onClick={handleStartChat} sx={{ fontSize: '1.2rem' }}> {/* Aumentar tamaño de botón */}
             Iniciar Chat
           </Button>
         </>

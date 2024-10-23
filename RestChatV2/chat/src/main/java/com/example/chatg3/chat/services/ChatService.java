@@ -3,6 +3,8 @@ package com.example.chatg3.chat.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.example.chatg3.chat.model.Chat;
 import com.example.chatg3.chat.model.Message;
@@ -69,4 +71,13 @@ public class ChatService {
             return chat;
         }
     }
+
+    public List<Message> getChatMessages(String sender, String to) {
+        Chat chat = getChat(sender, to); // Asegúrate de que este método te devuelva el Chat correctamente
+        if (chat != null) {
+            return messageRepository.findByChat(chat); // Asegúrate de que este método exista en tu MessageRepository
+        }
+        return new ArrayList<>(); // Retorna un array vacío si no hay mensajes
+    }
+    
 }

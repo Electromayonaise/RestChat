@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.List;
 import com.example.chatg3.chat.model.Chat;
 import com.example.chatg3.chat.model.Message;
 import com.example.chatg3.chat.services.ChatService;
@@ -32,8 +32,10 @@ public class ChatController {
 
     @GetMapping
     public ResponseEntity<?> getChat(@ModelAttribute Chat chat) {
-        return ResponseEntity.ok(
-            chatService.getChat(chat.getSender(), chat.getTo())
-        );
+        List<Message> messages = chatService.getChatMessages(chat.getSender(), chat.getTo());
+        return ResponseEntity.ok(messages); // Devuelve solo los mensajes
     }
+
+
+    
 }

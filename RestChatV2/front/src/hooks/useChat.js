@@ -1,14 +1,33 @@
-// src/hooks/useChat.js
-
 import { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
+import axios from 'axios';
 
 const useChat = (sender, receiver) => {
-  const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState([]);
   const [client, setClient] = useState(null);
 
   useEffect(() => {
+    // Obtener el historial de mensajes al iniciar el chat
+    const fetchMessages = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8081/chat?sender=a&to=b`);
+            // Asegúrate de que ahora estás accediendo a messages
+            const messagesData = response.data.messages; // Cambia esto si has ajustado la respuesta
+            if (Array.isArray(messagesData)) {
+                setMessages(messagesData);
+            } else {
+                console.error("Response.messages is not an array:", messagesData);
+                setMessages([]); // Maneja el error
+            }
+        } catch (error) {
+            console.error("Error al obtener el historial de mensajes:", error);
+        }
+    };
+    
+      
+    fetchMessages();
+
     const socket = new SockJS('http://localhost:8081/ws-connect');
     const stompClient = new Client({
       webSocketFactory: () => socket,
