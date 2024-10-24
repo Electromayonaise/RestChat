@@ -1,30 +1,15 @@
+// App.js
 import React from 'react';
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 import ChatPage from './pages/ChatPage';
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      light: '#64b5f6',
-      main: '#2196f3',
-      dark: '#1976d2',
-      contrastText: '#fff',
-    },
-    secondary: {
-      light: '#ff4081',
-      main: '#f50057',
-      dark: '#c51162',
-      contrastText: '#fff',
-    },
-  },
-});
+import ThemeContextProvider from './context/ThemeContext'; // Importar el ThemeContext
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeContextProvider>
       <CssBaseline />
       <ChatPage />
-    </ThemeProvider>
+    </ThemeContextProvider>
   );
 };
 
