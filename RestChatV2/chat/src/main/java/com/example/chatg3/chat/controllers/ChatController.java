@@ -33,6 +33,7 @@ public class ChatController {
     @GetMapping
     public ResponseEntity<?> getChat(@ModelAttribute Chat chat) {
         List<Message> messages = chatService.getChatMessages(chat.getSender(), chat.getTo());
+        System.out.println("Retrieved messages: " + messages);
         return ResponseEntity.ok(messages); // Devuelve solo los mensajes
     }
 
