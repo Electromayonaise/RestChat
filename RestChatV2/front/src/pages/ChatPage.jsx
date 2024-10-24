@@ -1,67 +1,63 @@
-// ChatPage.js
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Box } from '@mui/material';
-import Chat from '../components/Chat';
-import ToggleThemeSwitch from '../components/ToggleThemeSwitch'; // Importa el toggle switch
+import { Container, Box } from '@mui/material';
+import UserNameForm from '../components/UserNameForm';
+import ChatLayout from '../components/ChatLayout';
+import ToggleThemeSwitch from '../components/ToggleThemeSwitch';
 
 const ChatPage = () => {
   const [username, setUsername] = useState('');
+  const [isUsernameConfirmed, setIsUsernameConfirmed] = useState(false);
   const [receiver, setReceiver] = useState('');
   const [startChat, setStartChat] = useState(false);
+  const [chats, setChats] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
 
   const handleStartChat = () => {
-    if (username.trim() && receiver.trim()) {
+    if (receiver.trim()) {
+      setChats(prevChats => {
+        if (!prevChats.includes(receiver)) {
+          return [...prevChats, receiver];
+        }
+        return prevChats;
+      });
+      setActiveChat(receiver);
       setStartChat(true);
     }
   };
 
+  const handleSelectChat = (chatUser) => {
+    setActiveChat(chatUser);
+  };
+
+  const handleSetUsername = () => {
+    if (username.trim()) {
+      setIsUsernameConfirmed(true);
+    }
+  };
+
   return (
-    <Container maxWidth="sm" sx={{ marginTop: 4, position: 'relative' }}>
-      {/* Posiciona el switch completamente a la derecha sin superponer */}
+    <Container maxWidth="md" sx={{ marginTop: 4, position: 'relative' }}>
       <Box sx={{ position: 'fixed', top: 20, right: 20 }}>
         <ToggleThemeSwitch />
       </Box>
 
-      {!startChat ? (
-        <>
-          {/* Contenedor principal con los inputs y el título */}
-          <Box sx={{ textAlign: 'center', marginBottom: 4 }}>
-            <Typography variant="h4" gutterBottom sx={{ fontSize: '2rem', marginBottom: 4 }}>
-              Bienvenido a Chat Pro
-            </Typography>
-
-            {/* Input de nombre */}
-            <TextField
-              label="Tu Nombre"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              sx={{ '& .MuiInputBase-input': { fontSize: '1.2rem' } }}
-            />
-
-            {/* Input de usuario receptor */}
-            <TextField
-              label="Usuario con el que chatear"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={receiver}
-              onChange={(e) => setReceiver(e.target.value)}
-              sx={{ '& .MuiInputBase-input': { fontSize: '1.2rem' } }}
-            />
-
-            {/* Botón de iniciar chat centrado */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
-              <Button variant="contained" onClick={handleStartChat} sx={{ fontSize: '1.2rem' }}>
-                Iniciar Chat
-              </Button>
-            </Box>
-          </Box>
-        </>
+      {!isUsernameConfirmed ? (
+        <UserNameForm
+          username={username}
+          setUsername={setUsername}
+          onConfirm={handleSetUsername}
+        />
       ) : (
-        <Chat sender={username} receiver={receiver} />
+        <ChatLayout
+          username={username}
+          receiver={receiver}
+          setReceiver={setReceiver}
+          startChat={startChat}
+          chats={chats}
+          activeChat={activeChat}
+          onStartChat={handleStartChat}
+          onSelectChat={handleSelectChat}
+        />
       )}
     </Container>
   );
