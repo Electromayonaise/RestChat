@@ -1,22 +1,28 @@
-import React, { useState, useContext } from 'react';
-import { Paper, Typography, Box, TextField, Button } from '@mui/material';
+import React, { useState, useContext, useEffect } from 'react';
+import { Paper, Typography, Box, TextField, Button, useTheme } from '@mui/material';
 import { styled } from '@mui/system';
 import useChat from '../hooks/useChat';
-import { ThemeContext } from '../context/ThemeContext'; // Importar el contexto
+import { ThemeContext } from '../context/ThemeContext';
 
 const ChatBubble = styled(Paper)(({ theme, sender }) => ({
   margin: '5px',
   padding: '12px',
   borderRadius: '10px',
   maxWidth: '70%',
-  backgroundColor: sender ? theme.palette.primary.light : theme.palette.grey[400],
+  backgroundColor: sender
+    ? theme?.palette?.primary?.light || '#d1e7fd'
+    : theme?.palette?.grey[400] || '#e0e0e0',
   alignSelf: sender ? 'flex-end' : 'flex-start',
 }));
 
 const Chat = ({ sender, receiver }) => {
   const [input, setInput] = useState('');
-  const { messages, sendMessage } = useChat(sender, receiver);
-  const { darkMode } = useContext(ThemeContext); // Obtener el estado del tema
+  const { messages, sendMessage, fetchMessages } = useChat(sender, receiver);
+  const { darkMode } = useContext(ThemeContext);
+
+  useEffect(() => {
+    fetchMessages(); // Carga el historial de mensajes al iniciar la conversación
+  }, [receiver]);
 
   const handleSendMessage = () => {
     sendMessage(input);
@@ -30,7 +36,7 @@ const Chat = ({ sender, receiver }) => {
         flexDirection: 'column',
         alignItems: 'stretch',
         marginTop: 2,
-        bgcolor: darkMode ? 'background.default' : 'background.paper', // Cambiar el fondo según el tema
+        bgcolor: darkMode ? 'background.default' : 'background.paper',
       }}
     >
       <Typography variant="h4" gutterBottom>
@@ -46,7 +52,7 @@ const Chat = ({ sender, receiver }) => {
           border: '1px solid #ccc',
           borderRadius: '5px',
           padding: 2,
-          bgcolor: darkMode ? 'background.paper' : 'grey.200', // Cambiar el fondo del chat según el tema
+          bgcolor: darkMode ? 'background.paper' : 'grey.200',
         }}
       >
         {messages.map((msg, index) => (
